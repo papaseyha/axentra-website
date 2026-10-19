@@ -442,6 +442,9 @@ body:has(.gold-premium) #screen>.card p.muted.small{margin:8px 0 0;font-size:9px
 #axHome .hm-brand .hm-mark svg{width:37px!important;height:37px!important;filter:drop-shadow(0 1px 2px #0003)!important}
 #axHome .hm-brand small{letter-spacing:1.35px!important;color:#b5c3de!important;font-weight:650!important}
 @media(max-width:480px){#axHome .hm-brand .hm-mark{flex-basis:39px!important;width:39px!important;height:39px!important}#axHome .hm-brand .hm-mark svg{width:33px!important;height:33px!important}}
+
+/* V55: Prevent iOS Safari auto-zoom when focusing editable fields. */
+@media (pointer:coarse) { input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea, .auth-field input, .bot-input input, .bot-field .bot-input input, .wallet-pay-inputs input { font-size:16px !important; } }
 </style></head><body>
 <div id="axHome" aria-label="AXENTRA public home website">
   <nav class="hm-nav"><div class="hm-brand"><span class="hm-mark" aria-label="AXENTRA logo"><svg viewBox="0 0 64 64" width="46" height="46" role="img" aria-label="AXENTRA"><defs><linearGradient id="axV53" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#72e8ff"/><stop offset=".55" stop-color="#779bff"/><stop offset="1" stop-color="#c18aff"/></linearGradient></defs><path d="M5 49L26 10H37L58 49H45L31.5 23L18 49Z" fill="url(#axV53)"/><path d="M23 43H43" stroke="#e8faff" stroke-width="5" stroke-linecap="round"/><path d="M6 56L20 49L30 54L46 39L58 41" fill="none" stroke="#65e9d3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>AXENTRA<small>TRADING TECHNOLOGY</small></span></div><div class="hm-links"><a href="#hm-features">Features</a><a href="#hm-how">How It Works</a><a href="#hm-about">About Us</a></div><div class="hm-actions"><button class="hm-btn" onclick="homeAuth('login')">Log In</button><button class="hm-btn primary" onclick="homeAuth('register')">Sign Up</button></div></nav>
