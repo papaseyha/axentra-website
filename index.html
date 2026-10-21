@@ -659,6 +659,24 @@ function profile() {
 }
 
 
+function myMt5Accounts() {
+  return card(`
+    <button class="back" onclick="openPage('profile')">
+      ← Back to Profile
+    </button>
+
+    <h3>My MT5 Accounts</h3>
+
+    <div id="mt5AccountsList">
+      Loading MT5 accounts...
+    </div>
+
+    <button class="btn full" onclick="openPage('connect')">
+      + Add MT5 Account
+    </button>
+  `);
+}
+
 function connect() {
   return card(`
     <button class="back" onclick="openPage('profile')">
