@@ -536,7 +536,7 @@ function render() {
     wallet,
     security,
     connect,
-    myMt5Accounts,
+    myMt5Accounts: typeof myMt5Accounts === 'function' ? myMt5Accounts : () => card('<h3>My MT5 Accounts</h3><p>Account list is temporarily unavailable.</p>'),
     admin,
     notifications
   }[S.page] || dashboard)();
