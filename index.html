@@ -580,7 +580,83 @@ function axCreateDemoOrder(){const p=P[S.plan];const a=axDemoOrders();a.unshift(
 function axClearDemoOrders(){try{sessionStorage.removeItem('axentra_demo_orders')}catch(e){}toast('Demo requests cleared');render()}
 
 function history(){let t=[['BUY','0.01','+$12.40'],['SELL','0.02','-$4.10'],['BUY','0.03','+$21.30'],['SELL','0.01','+$5.60']];return `<div class="history-page">`+card(`<div class="seg">${['Today','Week','Month','All'].map(x=>`<button class="${(S.historyRange||'Today')===x?'on':''}" onclick="S.historyRange='${x}';render()">${x}</button>`).join('')}</div><div class="grid four" style="margin-top:12px">${metric('Profit Day','+$35.20')}${metric('Win Rate','66.7%')}${metric('Trades','24')}${metric('Yesterday','+$28.10')}</div><p class="muted small">Illustrative results, not live trading records.</p>`)+card(`<div class="flex"><h3>Trade History</h3><select style="width:95px" onchange="S.tradeFilter=this.value;render()">${['All','BUY','SELL'].map(x=>`<option ${S.tradeFilter===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="tradehead"><span>Trade</span><span>Lot</span><span>P/L</span></div>${t.filter(x=>S.tradeFilter==='All'||x[0]===S.tradeFilter).map(x=>`<div class="historytrade"><span><b class="typepill ${x[0]==='BUY'?'buy':'sell'}">${x[0]}</b> XAUUSD</span><span>${x[1]}</span><strong class="${x[2][0]==='+'?'green':'red'}">${x[2]}</strong></div>`).join('')}`)+`</div>`}
-function profile(){const items=[['connect','Connect MT5 Account','Link your MT5 account to AXENTRA','link','blue'],['wallet','AXENTRA Wallet','Manage your wallet, deposits & withdrawals','wallet','teal'],['security','Security Center','Transaction PIN and account security','shield','violet'],['notifications','Notifications','Trade alerts and system updates','bell','orange'],['settings','Settings','Language, theme and preferences','settings','violet'],['help','Help & Support','FAQ and contact support','help','gray'],['logout','Logout','Sign out of your account','logout','pink']];return `<section class="profile-member card"><div class="profile-user"><div class="profile-avatar">${ico('profile')}</div><div class="profile-user-text"><h3>${axProfileName()}</h3><div class="muted small">${axProfileEmail()}</div><span class="profile-demo">Demo Account</span></div><button class="profile-edit" onclick="axEditProfile()">✎ Edit Profile</button></div><div class="profile-stats"><div><span>${ico('wallet')}</span><small>Wallet Balance</small><b>$150.00</b></div><div><span>${ico('profit')}</span><small>Total Profit</small><b class="green">+$125.50</b></div><div><span>${ico('medal')}</span><small>Member Level</small><b>Demo</b></div></div></section><div class="profile-menus">${items.map(([page,title,desc,ic,color])=>`<button class="profile-menu" onclick="${page==='logout'?`axLogout()`:['settings','help'].includes(page)?`toast('${title}: Demo preview only')`:`openPage('${page}')`}"><span class="profile-menu-icon ${color}">${ico(ic)}</span><span class="profile-menu-copy"><b>${title}</b><small>${desc}</small></span><span class="profile-chevron">›</span></button>`).join('')}</div>`}
+
+function profile() {
+  const items = [
+    ['connect', 'Connect MT5 Account', 'Link your MT5 account to AXENTRA', 'link', 'blue'],
+    ['myMt5Accounts', 'My MT5 Accounts', 'View your registered MT5 accounts', 'link', 'teal'],
+    ['wallet', 'AXENTRA Wallet', 'Manage your wallet, deposits & withdrawals', 'wallet', 'teal'],
+    ['security', 'Security Center', 'Transaction PIN and account security', 'shield', 'violet'],
+    ['notifications', 'Notifications', 'Trade alerts and system updates', 'bell', 'orange'],
+    ['settings', 'Settings', 'Language, theme and preferences', 'settings', 'violet'],
+    ['help', 'Help & Support', 'FAQ and contact support', 'help', 'gray'],
+    ['logout', 'Logout', 'Sign out of your account', 'logout', 'pink']
+  ];
+
+  return `
+    <section class="profile-member card">
+      <div class="profile-user">
+        <div class="profile-avatar">${ico('profile')}</div>
+
+        <div class="profile-user-text">
+          <h3>${axProfileName()}</h3>
+          <div class="muted small">${axProfileEmail()}</div>
+          <span class="profile-demo">Demo Account</span>
+        </div>
+
+        <button class="profile-edit" onclick="axEditProfile()">
+          ✎ Edit Profile
+        </button>
+      </div>
+
+      <div class="profile-stats">
+        <div>
+          <span>${ico('wallet')}</span>
+          <small>Wallet Balance</small>
+          <b>$150.00</b>
+        </div>
+
+        <div>
+          <span>${ico('profit')}</span>
+          <small>Total Profit</small>
+          <b class="green">+$125.50</b>
+        </div>
+
+        <div>
+          <span>${ico('medal')}</span>
+          <small>Member Level</small>
+          <b>Demo</b>
+        </div>
+      </div>
+    </section>
+
+    <div class="profile-menus">
+      ${items.map(([page, title, desc, ic, color]) => `
+        <button
+          class="profile-menu"
+          onclick="${
+            page === 'logout'
+              ? 'axLogout()'
+              : ['settings', 'help'].includes(page)
+                ? `toast('${title}: Demo preview only')`
+                : `openPage('${page}')`
+          }"
+        >
+          <span class="profile-menu-icon ${color}">
+            ${ico(ic)}
+          </span>
+
+          <span class="profile-menu-copy">
+            <b>${title}</b>
+            <small>${desc}</small>
+          </span>
+
+          <span class="profile-chevron">›</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
 
 
 function connect() {
