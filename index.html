@@ -525,7 +525,66 @@ function axClearDemoOrders(){try{sessionStorage.removeItem('axentra_demo_orders'
 function history(){let t=[['BUY','0.01','+$12.40'],['SELL','0.02','-$4.10'],['BUY','0.03','+$21.30'],['SELL','0.01','+$5.60']];return `<div class="history-page">`+card(`<div class="seg">${['Today','Week','Month','All'].map(x=>`<button class="${(S.historyRange||'Today')===x?'on':''}" onclick="S.historyRange='${x}';render()">${x}</button>`).join('')}</div><div class="grid four" style="margin-top:12px">${metric('Profit Day','+$35.20')}${metric('Win Rate','66.7%')}${metric('Trades','24')}${metric('Yesterday','+$28.10')}</div><p class="muted small">Illustrative results, not live trading records.</p>`)+card(`<div class="flex"><h3>Trade History</h3><select style="width:95px" onchange="S.tradeFilter=this.value;render()">${['All','BUY','SELL'].map(x=>`<option ${S.tradeFilter===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="tradehead"><span>Trade</span><span>Lot</span><span>P/L</span></div>${t.filter(x=>S.tradeFilter==='All'||x[0]===S.tradeFilter).map(x=>`<div class="historytrade"><span><b class="typepill ${x[0]==='BUY'?'buy':'sell'}">${x[0]}</b> XAUUSD</span><span>${x[1]}</span><strong class="${x[2][0]==='+'?'green':'red'}">${x[2]}</strong></div>`).join('')}`)+`</div>`}
 function profile(){const items=[['connect','Connect MT5 Account','Link your MT5 account to AXENTRA','link','blue'],['wallet','AXENTRA Wallet','Manage your wallet, deposits & withdrawals','wallet','teal'],['security','Security Center','Transaction PIN and account security','shield','violet'],['notifications','Notifications','Trade alerts and system updates','bell','orange'],['settings','Settings','Language, theme and preferences','settings','violet'],['help','Help & Support','FAQ and contact support','help','gray'],['logout','Logout','Sign out of your account','logout','pink']];return `<section class="profile-member card"><div class="profile-user"><div class="profile-avatar">${ico('profile')}</div><div class="profile-user-text"><h3>${axProfileName()}</h3><div class="muted small">${axProfileEmail()}</div><span class="profile-demo">Demo Account</span></div><button class="profile-edit" onclick="axEditProfile()">✎ Edit Profile</button></div><div class="profile-stats"><div><span>${ico('wallet')}</span><small>Wallet Balance</small><b>$150.00</b></div><div><span>${ico('profit')}</span><small>Total Profit</small><b class="green">+$125.50</b></div><div><span>${ico('medal')}</span><small>Member Level</small><b>Demo</b></div></div></section><div class="profile-menus">${items.map(([page,title,desc,ic,color])=>`<button class="profile-menu" onclick="${page==='logout'?`axLogout()`:['settings','help'].includes(page)?`toast('${title}: Demo preview only')`:`openPage('${page}')`}"><span class="profile-menu-icon ${color}">${ico(ic)}</span><span class="profile-menu-copy"><b>${title}</b><small>${desc}</small></span><span class="profile-chevron">›</span></button>`).join('')}</div>`}
 
-function connect(){return card(`<button class="back" onclick="openPage('profile')">← Back to Profile</button><h3>Connect Dupoin MT5</h3><div class="notice">This is UI only. Do not enter any real MT5 password here. Production credentials require a secure server-side process.</div>${row('Broker','Dupoin')}${row('Account Type','Demo / Real')}${row('Server','Not configured')}${row('MT5 Bridge','Offline')}<button class="btn full" disabled>Connect MT5 — Coming Soon</button>`)}
+
+function connect() {
+  return card(`
+    <button class="back" onclick="openPage('profile')">
+      ← Back to Profile
+    </button>
+
+    <h3>Connect Dupoin MT5</h3>
+
+    <div class="notice">
+      MT5 connection setup.
+      Live connection is not enabled yet.
+      Do not enter your real MT5 password.
+    </div>
+
+    <div class="field">
+      <label>Broker</label>
+      <input value="Dupoin" disabled>
+    </div>
+
+    <div class="field">
+      <label>MT5 Account Number</label>
+      <input id="mt5Account" type="text"
+        placeholder="Enter MT5 Account Number">
+    </div>
+
+    <div class="field">
+      <label>MT5 Server</label>
+      <input id="mt5Server" type="text"
+        placeholder="Enter MT5 Server">
+    </div>
+
+    <div class="field">
+      <label>Account Type</label>
+      <select id="mt5Type">
+        <option value="demo">Demo</option>
+        <option value="real">Real</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Password Type</label>
+      <select id="mt5PasswordType">
+        <option value="investor">Investor</option>
+        <option value="main">Main</option>
+      </select>
+    </div>
+
+    <div class="notice">
+      Password entry will be enabled after
+      secure MT5 authentication is ready.
+    </div>
+
+    <button class="btn full" disabled>
+      Connect MT5 — Coming Soon
+    </button>
+  `);
+}
+
+
 function security(){return card(`<button class="back" onclick="openPage('profile')">← Back to Profile</button><h3>Security Center</h3><div class="field"><label>Transaction PIN (demo only)</label><input type="password" maxlength="6" id="pin" placeholder="Use a fake 6-digit PIN"></div>${btn('Set Demo PIN',"setPin()",'secondary full')}<div class="line"></div><div class="flex"><div><b>Login Alerts</b><div class="muted small">New device notification preference</div></div><input class="toggle" type="checkbox" ${S.alerts?'checked':''} onchange="S.alerts=this.checked"></div><div class="line"></div><h3>Trusted Devices</h3>${row('Sample iPhone Session','Demo')}${row('Transaction History','Available in Wallet')}<p class="muted small">Actual authentication, device checks and secure PIN verification require backend services.</p>`)}
 function setPin(){let v=document.getElementById('pin').value;if(!/^\d{6}$/.test(v)){toast('Enter 6 digits for demo PIN');return}S.pin=true;document.getElementById('pin').value='';toast('Demo PIN indicator set; PIN was not saved')}
 const icoIcon=ico;
