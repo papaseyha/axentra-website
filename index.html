@@ -554,6 +554,41 @@ async function axVerifyBackend(token){
   return data;
 }
 let axSession=null;
+let axMt5Data = null;
+
+async function axLoadMT5() {
+  const token = axSession?.access_token;
+  if (!token) return;
+
+  try {
+    const response = await fetch(
+      AX_BACKEND_URL + "/api/mt5/status",
+      {
+        headers: {
+          Authorization: "Bearer " + token
+        },
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      axMt5Data = null;
+      return;
+    }
+
+    const data = await response.json();
+
+    axMt5Data = {
+      ...data,
+      online: Date.now() -
+        Date.parse(data.updatedAt) < 30000
+    };
+
+  } catch (error) {
+    axMt5Data = null;
+    console.error("MT5 Sync:", error);
+  }
+}  
 function axEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function axProfileName(){return axEscape(axSession?.user?.user_metadata?.full_name||axSession?.user?.email?.split('@')[0]||'Demo Visitor');}
 function axProfileEmail(){return axSession?.user?.email?axEscape(axSession.user.email)+' · Supabase Account':'Demo Preview · Not signed in';}
