@@ -481,7 +481,19 @@ const S={page:'dashboard',bot:false,trial:'available',sub:'inactive',plan:'month
 const P={monthly:{name:'Monthly',days:30,price:29},quarterly:{name:'3 Months',days:90,price:79},yearly:{name:'Yearly',days:365,price:249}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window._to);window._to=setTimeout(()=>x.style.display='none',3500)}
-function openPage(p){S.page=p;render();document.querySelector('.app').scrollTo({top:0,behavior:'instant'})}
+function openPage(p) {
+  S.page = p;
+  render();
+
+  if (p === 'myMt5Accounts') {
+    axLoadMt5Accounts();
+  }
+
+  document.querySelector('.app').scrollTo({
+    top: 0,
+    behavior: 'instant'
+  });
+}
 const card=x=>`<section class="card">${x}</section>`;const row=(a,b)=>`<div class="row"><span>${a}</span><strong>${b}</strong></div>`;const metric=(a,b)=>`<div class="metric"><small>${a}</small><b>${b}</b></div>`;const btn=(label,fn,cl='')=>`<button class="btn ${cl}" onclick="${fn}">${label}</button>`;
 function render() {
   const names = {
@@ -658,6 +670,66 @@ function profile() {
   `;
 }
 
+
+async function axLoadMt5Accounts() {
+  const list = document.getElementById("mt5AccountsList");
+  if (!list) return;
+
+  const token = axSession?.access_token;
+
+  if (!token) {
+    list.textContent = "Please log in first.";
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      AX_BACKEND_URL + "/api/mt5/accounts",
+      {
+        headers: {
+          Authorization: "Bearer " + token
+        },
+        cache: "no-store"
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Unable to load accounts");
+    }
+
+    const accounts = result.accounts || [];
+
+    if (!accounts.length) {
+      list.textContent = "No MT5 accounts found.";
+      return;
+    }
+
+    list.replaceChildren();
+
+    accounts.forEach(account => {
+      const item = document.createElement("div");
+      item.className = "notice";
+
+      const title = document.createElement("strong");
+      title.textContent =
+        (account.broker || "MT5") + " #" + account.account_number;
+
+      const details = document.createElement("p");
+      details.textContent =
+        account.server_name + " | " +
+        account.account_type + " | " +
+        account.connection_status;
+
+      item.append(title, details);
+      list.appendChild(item);
+    });
+
+  } catch (error) {
+    list.textContent = "Error: " + error.message;
+  }
+}
 
 function myMt5Accounts() {
   return card(`
