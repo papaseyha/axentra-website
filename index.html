@@ -577,11 +577,59 @@ function connect() {
       Password entry will be enabled after
       secure MT5 authentication is ready.
     </div>
-
-    <button class="btn full" disabled>
-      Connect MT5 — Coming Soon
-    </button>
+<button class="btn full" onclick="saveMt5Account()">
+  Save MT5 Account
+</button>
+    
   `);
+}
+
+async function saveMt5Account() {
+  const account_number = document.getElementById("mt5Account").value.trim();
+  const server_name = document.getElementById("mt5Server").value.trim();
+  const account_type = document.getElementById("mt5Type").value;
+  const token = axSession?.access_token;
+
+  if (!token) {
+    toast("Please log in first");
+    return;
+  }
+
+  if (!/^\d{4,20}$/.test(account_number) || !server_name) {
+    toast("Enter a valid MT5 account number and server");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      AX_BACKEND_URL + "/api/mt5/accounts",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          account_number,
+          server_name,
+          account_type
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Unable to save account");
+    }
+
+    toast("MT5 Account saved successfully");
+    openPage("profile");
+
+  } catch (error) {
+    console.error("Save MT5:", error);
+    toast(error.message || "Connection error");
+  }
 }
 
 
