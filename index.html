@@ -494,6 +494,25 @@ function openPage(p) {
     behavior: 'instant'
   });
 }
+  }
+
+let axMt5RefreshTimer = null;
+
+function axStartMt5Refresh() {
+  if (axMt5RefreshTimer !== null) {
+    clearInterval(axMt5RefreshTimer);
+  }
+
+  axMt5RefreshTimer = setInterval(() => {
+    if (S.page === "myMt5Accounts" && !document.hidden) {
+      axLoadMt5Accounts();
+    }
+  }, 1000);
+}
+
+axStartMt5Refresh();
+
+const card = x => ...
 const card=x=>`<section class="card">${x}</section>`;const row=(a,b)=>`<div class="row"><span>${a}</span><strong>${b}</strong></div>`;const metric=(a,b)=>`<div class="metric"><small>${a}</small><b>${b}</b></div>`;const btn=(label,fn,cl='')=>`<button class="btn ${cl}" onclick="${fn}">${label}</button>`;
 function render() {
   const names = {
