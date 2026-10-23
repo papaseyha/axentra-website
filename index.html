@@ -477,6 +477,7 @@ const PATHS={dashboard:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x
 Object.assign(PATHS,{'link': '<path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-2 2"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l2-2"/>', 'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>', 'settings': '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.7l-2 2a1.6 1.6 0 0 0-1.7-.3l-1.2.5-.4 2.1h-2.8l-.4-2.1-1.2-.5a1.6 1.6 0 0 0-1.7.3l-2-2a1.6 1.6 0 0 0 .3-1.7l-.5-1.2L4 13.4v-2.8l2.1-.4.5-1.2a1.6 1.6 0 0 0-.3-1.7l2-2a1.6 1.6 0 0 0 1.7.3l1.2-.5.4-2.1h2.8l.4 2.1 1.2.5a1.6 1.6 0 0 0 1.7-.3l2 2a1.6 1.6 0 0 0-.3 1.7l.5 1.2 2.1.4v2.8l-2.1.4Z"/>', 'help': '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 0 1 5 1c0 2-2.5 2-2.5 4"/><path d="M12 17h.01"/>', 'logout': '<path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4"/><path d="M14 7l5 5-5 5M19 12H9"/>', 'profit': '<path d="M3 19h18M6 16V9m4 7V5m4 11v-4m4 4V3"/>', 'medal': '<circle cx="12" cy="15" r="5"/><path d="m7 2 5 8 5-8M9 2h6M12 13v4"/>', 'copy': '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/>'});
 function ico(name){return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">${PATHS[name]||PATHS.dashboard}</svg>`}
 
+let axSession=null;
 const S={page:'dashboard',bot:false,trial:'available',sub:'inactive',plan:'monthly',payment:'wallet',wallet:'home',admin:'overview',alerts:true,lot:'0.01',profit:'5',step:'100',max:'10',daily:'50',period:'M15',tradeFilter:'All',withdrawals:[{id:'WD-001',user:'AX-1002',amount:20,status:'Pending'},{id:'WD-002',user:'AX-1003',amount:15,status:'Pending'}],walletTransactions:[],adminLog:[],pin:false};
 const P={monthly:{name:'Monthly',days:30,price:29},quarterly:{name:'3 Months',days:90,price:79},yearly:{name:'Yearly',days:365,price:249}};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1013,7 +1014,7 @@ async function axVerifyBackend(token){
   if(!data.id||!data.email)throw Error('Backend response is missing account id/email');
   return data;
 }
-let axSession=null;
+
 let axMt5Data = null;
 
 async function axLoadMT5() {
