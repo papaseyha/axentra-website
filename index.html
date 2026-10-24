@@ -489,6 +489,9 @@ function openPage(p) {
   if (p === 'dashboard' && axSession?.access_token) {
     axRefreshDashboard();
   }
+  if (p === 'history' && axSession?.access_token) {
+    axRefreshHistory();
+  }
   if (p === 'myMt5Accounts') {
     axLoadMt5Accounts();
   }
@@ -686,7 +689,83 @@ function axDemoOrders(){try{const a=JSON.parse(sessionStorage.getItem('axentra_d
 function axCreateDemoOrder(){const p=P[S.plan];const a=axDemoOrders();a.unshift({id:'DEMO-'+Date.now().toString(36).toUpperCase(),plan:p.name,amount:p.price,method:S.payment==='aba'?'ABA / KHQR':'AXENTRA Wallet',date:new Date().toLocaleString()});try{sessionStorage.setItem('axentra_demo_orders',JSON.stringify(a.slice(0,10)))}catch(e){}toast('Demo request saved in this browser only. No charge made.');render()}
 function axClearDemoOrders(){try{sessionStorage.removeItem('axentra_demo_orders')}catch(e){}toast('Demo requests cleared');render()}
 
-function history(){let t=[['BUY','0.01','+$12.40'],['SELL','0.02','-$4.10'],['BUY','0.03','+$21.30'],['SELL','0.01','+$5.60']];return `<div class="history-page">`+card(`<div class="seg">${['Today','Week','Month','All'].map(x=>`<button class="${(S.historyRange||'Today')===x?'on':''}" onclick="S.historyRange='${x}';render()">${x}</button>`).join('')}</div><div class="grid four" style="margin-top:12px">${metric('Profit Day','+$35.20')}${metric('Win Rate','66.7%')}${metric('Trades','24')}${metric('Yesterday','+$28.10')}</div><p class="muted small">Illustrative results, not live trading records.</p>`)+card(`<div class="flex"><h3>Trade History</h3><select style="width:95px" onchange="S.tradeFilter=this.value;render()">${['All','BUY','SELL'].map(x=>`<option ${S.tradeFilter===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="tradehead"><span>Trade</span><span>Lot</span><span>P/L</span></div>${t.filter(x=>S.tradeFilter==='All'||x[0]===S.tradeFilter).map(x=>`<div class="historytrade"><span><b class="typepill ${x[0]==='BUY'?'buy':'sell'}">${x[0]}</b> XAUUSD</span><span>${x[1]}</span><strong class="${x[2][0]==='+'?'green':'red'}">${x[2]}</strong></div>`).join('')}`)+`</div>`}
+let axHistoryData = null;
+let axHistoryLoading = false;
+let axHistoryError = '';
+let axHistoryAccountId = '';
+let axHistoryRequestId = 0;
+
+async function axRefreshHistory() {
+  const token = axSession?.access_token;
+  if (!token || axHistoryLoading) return;
+  axHistoryLoading = true;
+  const requestId = ++axHistoryRequestId;
+  try {
+    // Account selection is consistent with the existing live dashboard.
+    const accountsResponse = await fetch(AX_BACKEND_URL+'/api/mt5/accounts', {
+      headers: {Authorization:'Bearer '+token}, cache:'no-store'
+    });
+    if (!accountsResponse.ok) throw Error('Accounts HTTP '+accountsResponse.status);
+    const accountList = await accountsResponse.json();
+    const accounts = Array.isArray(accountList.accounts) ? accountList.accounts : [];
+    const account = accounts[0];
+    if (!account?.id) {
+      axHistoryData = null;
+      axHistoryAccountId = '';
+      axHistoryError = 'No registered MT5 account. Add an account in Profile → My MT5 Accounts.';
+      return;
+    }
+    if (axHistoryAccountId && axHistoryAccountId !== account.id) axHistoryData = null;
+    axHistoryAccountId = account.id;
+    const response = await fetch(AX_BACKEND_URL+'/api/mt5/history?account_id='+encodeURIComponent(account.id), {
+      headers: {Authorization:'Bearer '+token}, cache:'no-store'
+    });
+    if (!response.ok) throw Error('History HTTP '+response.status);
+    const result = await response.json();
+    if (requestId !== axHistoryRequestId || axSession?.access_token !== token) return;
+    axHistoryData = result;
+    axHistoryError = '';
+  } catch(error) {
+    console.error('History sync:', error);
+    axHistoryError = 'Unable to load live MT5 history ('+error.message+').';
+  } finally {
+    axHistoryLoading = false;
+    if (S.page === 'history' && axSession?.access_token === token) render();
+  }
+}
+setInterval(() => {
+  if (!document.hidden && S.page === 'history' && axSession?.access_token) axRefreshHistory();
+}, 30000);
+
+function history() {
+  if (!axSession?.access_token) return card('<h3>Trading History · Demo Preview</h3><p class="muted small">Log in to view your real MT5 closed trades. No simulated profits are displayed here.</p>');
+  if (!axHistoryData) return card('<h3>MT5 Trading History</h3><div class="notice">'+axEscape(axHistoryError || 'Loading your MT5 closed trades…')+'</div><div style="margin-top:12px">'+btn('Refresh History','axRefreshHistory()','secondary full')+'</div>');
+  const all = Array.isArray(axHistoryData.closed_trades) ? axHistoryData.closed_trades : [];
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())/1000;
+  const yesterday = today-86400;
+  const week = today-((now.getUTCDay()+6)%7)*86400;
+  const month = Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),1)/1000;
+  const range = S.historyRange || 'Today';
+  const cutoff = range==='Today'?today:range==='Week'?week:range==='Month'?month:0;
+  const net = t => [t.profit,t.swap,t.commission,t.fee].reduce((a,v)=>a+(Number(v)||0),0);
+  const sum = trades => trades.reduce((a,t)=>a+net(t),0);
+  const selected = all.filter(t=>Number(t.close_time)>=cutoff).sort((a,b)=>Number(b.close_time)-Number(a.close_time));
+  const filtered = selected.filter(t=>S.tradeFilter==='All'||t.type===S.tradeFilter);
+  const wins = selected.filter(t=>net(t)>0).length;
+  const rate = selected.length ? (wins/selected.length*100).toFixed(1)+'%' : '—';
+  const money = v => (v>=0?'+':'-')+axMoney(Math.abs(v));
+  const yesterdayDeals = all.filter(t=>Number(t.close_time)>=yesterday&&Number(t.close_time)<today);
+  const updated = axHistoryData.history_updated_at ? new Date(axHistoryData.history_updated_at).toLocaleString() : 'Not synced';
+  const entries = filtered.map(t=>{
+    const pl=net(t), side=t.type==='SELL'?'SELL':'BUY';
+    const time=Number(t.close_time)>0?new Date(Number(t.close_time)*1000).toLocaleString():'—';
+    return `<div class="historytrade"><span><b class="typepill ${side==='BUY'?'buy':'sell'}">${side}</b> ${axEscape(t.symbol||'—')}<small style="display:block;color:#8290a8;margin-top:4px">${axEscape(time)} · Deal #${axEscape(t.deal)}</small></span><span>${axEscape(t.lot)}</span><strong class="${pl>=0?'green':'red'}">${money(pl)}</strong></div>`;
+  }).join('');
+  return `<div class="history-page">`+
+    card(`<div class="flex"><b>MT5 Live History</b><span class="badge ok">Real data</span></div><p class="muted small">Account #${axEscape(axHistoryAccountId ? (axDashboardAccounts.find(a=>a.id===axHistoryAccountId)?.account_number||'MT5') : 'MT5')} · Last history sync: ${axEscape(updated)} · UTC reporting days</p><div class="seg">${['Today','Week','Month','All'].map(x=>`<button class="${range===x?'on':''}" onclick="S.historyRange='${x}';render()">${x}</button>`).join('')}</div><div class="grid four" style="margin-top:12px">${metric('Profit Day',money(sum(all.filter(t=>Number(t.close_time)>=today))))}${metric('Win Rate',rate)}${metric('Trades',String(selected.length))}${metric('Yesterday',money(sum(yesterdayDeals)))}</div><p class="muted small">Selected ${axEscape(range)} P/L: <b class="${sum(selected)>=0?'green':'red'}">${money(sum(selected))}</b> · 90-day snapshot maximum · Win rate per closing deal, not per position</p>${axHistoryError?`<div class="notice">${axEscape(axHistoryError)} Showing last loaded history.</div>`:''}`)+
+    card(`<div class="flex"><h3>Closed Trades (${filtered.length})</h3><select style="width:95px" onchange="S.tradeFilter=this.value;render()">${['All','BUY','SELL'].map(x=>`<option ${S.tradeFilter===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="tradehead"><span>Trade / Close time</span><span>Lot</span><span>P/L net</span></div>${entries||'<p class="muted small">No closed trades for this period and filter.</p>'}<div style="margin-top:12px">${btn('Refresh History','axRefreshHistory()','secondary full')}</div>`)+`</div>`;
+}
 
 function profile() {
   const items = [
@@ -1054,7 +1133,7 @@ function axEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<
 function axProfileName(){return axEscape(axSession?.user?.user_metadata?.full_name||axSession?.user?.email?.split('@')[0]||'Demo Visitor');}
 function axProfileEmail(){return axSession?.user?.email?axEscape(axSession.user.email)+' · Supabase Account':'Demo Preview · Not signed in';}
 function axSaveSession(data){axSession=data;try{sessionStorage.setItem('axentra_auth_session',JSON.stringify(data));}catch(e){}}
-function axClearSession(){axDashboardAccounts=[];axDashboardLoaded=false;axDashboardRequestId++;axSession=null;try{sessionStorage.removeItem('axentra_auth_session');}catch(e){}}
+function axClearSession(){axHistoryData=null;axHistoryAccountId="";axHistoryError="";axHistoryRequestId++;axDashboardAccounts=[];axDashboardLoaded=false;axDashboardRequestId++;axSession=null;try{sessionStorage.removeItem('axentra_auth_session');}catch(e){}}
 function axLogout(){axClearSession();document.getElementById('authPass').value='';document.getElementById('authConfirm').value='';document.getElementById('authShade').style.display='none';document.getElementById('axHome').style.display='block';openPage('dashboard');toast('Signed out successfully');}
 async function axEditProfile(){if(!axSession?.access_token){toast('Log in to edit your profile');return;}const current=axSession.user?.user_metadata?.full_name||'';const name=prompt('Full name',current);if(name===null)return;const cleaned=name.trim();if(cleaned.length<2||cleaned.length>80){toast('Name must be 2–80 characters');return;}try{const r=await fetch(AX_SUPABASE_URL+'/auth/v1/user',{method:'PUT',headers:{'Content-Type':'application/json','apikey':AX_SUPABASE_KEY,'Authorization':'Bearer '+axSession.access_token},body:JSON.stringify({data:{full_name:cleaned}})});const user=await r.json();if(!r.ok)throw Error(user.msg||user.message||'Update failed');axSaveSession({...axSession,user});render();toast('Profile updated');}catch(e){toast(e.message||'Could not update profile');}}
 try{const saved=JSON.parse(sessionStorage.getItem('axentra_auth_session')||'null');if(saved?.access_token&&saved?.user)axSession=saved;}catch(e){}
