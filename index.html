@@ -1,6 +1,14 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>AXENTRA V63 | Customer Portal</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>AXENTRA V65 | Customer Portal</title><style>
 :root{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#24364a;background:#eef1f5}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:520px;min-height:100dvh;margin:auto;background:#f4f6f9;padding:17px 15px 96px}.top,.flex{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:flex;align-items:center;gap:9px}.logo{height:43px;width:43px;background:#e9ecff;border-radius:13px;display:grid;place-items:center;color:#667de7;font-size:27px;font-weight:900;font-style:italic}.brand strong{font-size:20px;letter-spacing:.5px}.brand small{display:block;color:#97a2b2;font-size:9px;letter-spacing:1.2px}.pill{border-radius:20px;background:#e8ebf0;padding:6px 10px;color:#637284;font-size:11px;font-weight:700}.pagehead{margin:22px 2px 15px}.pagehead h1{font-size:25px;margin:0 0 5px}.muted{color:#8190a0}.small{font-size:12px}.card{background:white;border-radius:17px;padding:17px;margin-bottom:12px;box-shadow:0 2px 12px #27344905}.card h3{margin:0 0 12px;font-size:16px}.metric{background:#f5f7f9;border-radius:12px;padding:13px}.metric small{display:block;color:#8a98a8;font-size:11px}.metric b{display:block;margin-top:7px;font-size:17px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.three{grid-template-columns:repeat(3,1fr)}.green{color:#15946e}.red{color:#c77569}.amber{color:#ad7a34}.btn{background:#626fce;color:white;border-radius:11px;padding:12px 14px;font-weight:650;font-size:13px}.btn.secondary{background:#edf0f5;color:#536478}.btn.success{background:#299a76}.btn.danger{background:#d67b70}.btn.full{width:100%}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:8px}.actions>*{flex:1}.line{height:1px;background:#e9edf1;margin:13px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:11px 0;font-size:13px}.row span:first-child{color:#7b8b9b}.field{margin:12px 0}.field label{display:block;font-size:12px;color:#657789;margin-bottom:6px}input,select{width:100%;border:1px solid #e2e7ed;background:#fafbfc;border-radius:10px;padding:11px;color:#24364a;outline-color:#7d89df}.notice{border-radius:11px;padding:12px;background:#fff5e9;color:#94703b;font-size:12px;line-height:1.5}.info{background:#edf7f2;color:#347d60}.menu{width:100%;display:flex;align-items:center;justify-content:space-between;padding:15px;background:#f6f8fa;border-radius:12px;color:#34495e;margin:8px 0;text-align:left}.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:520px;width:100%;display:grid;grid-template-columns:repeat(5,1fr);background:white;border-top:1px solid #e7ebf1;padding:9px 6px calc(9px + env(safe-area-inset-bottom));z-index:10}.tab{background:none;color:#93a1b1;font-size:10px;padding:7px 0;border-radius:10px}.tab .ico{display:block;font-size:21px;margin-bottom:4px}.tab.active{color:#606bc6;background:#eef0ff;font-weight:700}.choice{width:100%;background:#f7f8fa;border:1px solid #e4e8ed;border-radius:12px;padding:13px;text-align:left;margin:5px 0;color:#2d4055}.choice.selected{background:#eef0ff;border-color:#8790d9}.choice b{float:right;font-size:17px}.choice small{display:block;margin-top:5px;color:#8190a0}.badge{font-size:10px;padding:5px 8px;border-radius:20px;background:#e8ebf0;color:#6c7887;font-weight:700}.badge.ok{background:#e2f5ec;color:#278965}.badge.warn{background:#fff0dc;color:#a87634}.chart{width:100%;height:160px;display:block}.hidden{display:none}.back{background:none;color:#6372c8;padding:0 0 14px;font-weight:650}.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{background:#f1f3f6;border-radius:8px;padding:9px 11px;color:#708095}.seg button.on{background:#e9edff;color:#5767c6}.foot{color:#9aa5b1;text-align:center;font-size:10px;margin:20px 0}.qr{font-size:100px;text-align:center;line-height:1.2}.toggle{accent-color:#6672d0;width:18px;height:18px}.stack{display:grid;gap:8px}.adminbar{display:flex;gap:6px;overflow:auto;padding-bottom:5px}.adminbar button{white-space:nowrap}.toast{position:fixed;bottom:calc(145px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);width:min(90vw,450px);background:#29394d;color:white;border-radius:12px;padding:13px 15px;font-size:12px;z-index:20;box-shadow:0 8px 28px #0002;display:none}#screen{min-height:350px}@media(min-width:600px){.app{box-shadow:0 0 30px #192d4512}}
 
+/* AXENTRA V65 controller status polish */
+.ax-v65-ack{display:flex;align-items:center;gap:9px;padding:11px 12px;margin:12px 0 5px;background:#f4f8ff;border:1px solid #e1eafa;border-radius:13px;font-size:11px}
+.ax-v65-ack>span{display:flex;align-items:center;gap:7px;color:#71829d;font-weight:700;white-space:nowrap}
+.ax-v65-ack strong{font-size:11px;margin-left:auto;text-align:right}
+.ax-v65-dot{width:8px;height:8px;border-radius:50%;background:#f0b35a;display:inline-block}
+.ax-v65-dot.ready{background:#15b78d;box-shadow:0 0 0 3px #15b78d20}
+.ax-v65-refresh{background:#e8f0ff;color:#3d6ac8;border-radius:8px;padding:5px 10px;font-size:18px;line-height:1}
+.ax-v65-refresh:disabled{opacity:.45}
 /* AXENTRA V2 premium mobile refresh */
 :root{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#192d45;background:#e9edf4}
 body{background:linear-gradient(135deg,#e8edfa,#f6f8fc 45%,#e8eef8);-webkit-font-smoothing:antialiased}
@@ -662,11 +670,15 @@ function bot(){
  const online=!!a?.updated_at && Date.now()-new Date(a.updated_at).getTime()<120000;
  const live=!!axSession?.access_token && !!a;
  const enabled=!!settings?.enabled;
+ const ack=AX_BOT.ack;
+ const ackText=AX_BOT.ackLoading?'Checking EA…':(!ack?'Not verified':(ack.acknowledged?(ack.applied_enabled?'EA confirmed ON':'EA confirmed OFF'):'Not confirmed'));
+ const ackColor=ack?.acknowledged?'green':'amber';
  const number=a?esc(a.account_number):'No linked account';
  return `<section class="card bot-hero"><div class="flex"><div class="flex" style="justify-content:flex-start;gap:11px"><span class="botmark">${ico('bot')}</span><div><h3 style="margin:0">AXENTRA Auto Trading Bot</h3><div class="muted small">XAUUSD · Account #${number}</div></div></div><span class="badge ${enabled?'ok':'warn'}">${settings?(enabled?'ENABLED':'DISABLED'):'NOT VERIFIED'}</span></div>
  <div class="bot-summary-grid"><div><small>BOT SETTINGS</small><b>${settings?(enabled?'ON':'OFF'):'UNKNOWN'}</b></div><div><small>SYMBOL</small><b>XAUUSD</b></div><div><small>MT5 SYNC</small><b class="${online?'green':'amber'}">${online?'Online':'Offline'}</b></div></div>
- <div class="bot-controls"><button class="btn success" disabled title="License and EA command confirmation are not implemented">▶ Start Bot</button><button class="btn danger" ${!live||AX_BOT.busy?'disabled':''} onclick="axBotStop()">■ Disable Bot</button></div></section>
- <section class="card" aria-label="Trial and Subscription"><div class="flex"><div class="flex" style="justify-content:flex-start;gap:10px"><span class="review-icon">♛</span><h3 style="margin:0">Trial &amp; Subscription</h3></div><span class="pill">7 DAYS FREE</span></div><p class="muted small" style="line-height:1.6">7-day free trial for eligible customers. Trial activation requires server verification and is not available from this preview.</p><button class="btn full" disabled title="Server-side trial eligibility and MT5 license enforcement are not yet verified">Activate Free Trial · Unavailable</button><button class="bot-plan-link" onclick="openPage('subscription61')"><span>View Plans &amp; Renew Subscription</span><span>→</span></button><p class="muted small" style="margin-bottom:0">$29 per active MT5 account per month. No payment is collected here.</p></section>
+ <div class="ax-v65-ack"><span><span class="ax-v65-dot ${ack?.acknowledged?'ready':''}"></span>MT5 EA ACK</span><strong class="${ackColor}">${esc(ackText)}</strong><button class="ax-v65-refresh" onclick="axBotCheckAck()" ${!live||AX_BOT.ackLoading?'disabled':''} title="Check EA acknowledgement">↻</button></div>
+ <div class="bot-controls"><button class="btn success" ${!live||AX_BOT.busy||enabled?'disabled':''} onclick="axBotStart()">▶ Start Bot (Demo)</button><button class="btn danger" ${!live||AX_BOT.busy?'disabled':''} onclick="axBotStop()">■ Disable Bot</button></div></section>
+ <section class="card" aria-label="Trial and Subscription"><div class="flex"><div class="flex" style="justify-content:flex-start;gap:10px"><span class="review-icon">♛</span><h3 style="margin:0">Trial &amp; Subscription</h3></div><span class="pill">7 DAYS FREE</span></div><p class="muted small" style="line-height:1.6">7-day free trial for eligible customers. Activation will be available after server-side eligibility and license verification is installed.</p><button class="btn full" disabled title="Server-side trial eligibility and MT5 license enforcement are not yet verified">Free Trial · Awaiting Activation Setup</button><button class="bot-plan-link" onclick="openPage('subscription61')"><span>View Plans &amp; Renew Subscription</span><span>→</span></button><p class="muted small" style="margin-bottom:0">$29 per active MT5 account per month. No payment is collected here.</p></section>
  <section class="card"><h3>Bot Settings</h3><p class="muted small">Authenticated account settings · Saved to backend</p>
  ${AX_BOT.error?`<div class="notice">${esc(AX_BOT.error)}</div>`:''}
  <div class="bot-settings-grid">
@@ -674,18 +686,26 @@ function bot(){
  <div class="field bot-field"><label>Initial Lot</label><div class="bot-input"><input id="lot" type="number" min="0.01" max="1" step="0.01" value="${esc(settings?.start_lot??0.01)}"><span>Lot</span></div></div>
  <div class="field bot-field bot-field-wide"><label>Recovery Distance (MT5 points)</label><div class="bot-input"><input id="step" type="number" min="1" max="1000000" step="1" value="${esc(settings?.reentry_points??5000)}"><span>Points</span></div></div></div>
  <button class="btn full" ${!live||AX_BOT.busy?'disabled':''} onclick="axBotSave()">Save Bot Settings</button></section>
- <div class="bot-warning">⚠ Start is disabled until subscription enforcement and verified MT5 acknowledgment are implemented. MT5 Sync Online confirms data updates, not EA command delivery. Disable Bot writes enabled=false to the backend; it does not confirm that MT5 has stopped. Do not rely on this control as an emergency stop. For immediate stop, disable Algo Trading directly in MT5. Grid trading can incur substantial losses.</div>`;
+ <div class="bot-warning">⚠ DEMO TEST ONLY: Start requires active license, fresh connector and EA acknowledgement. MT5 Sync Online confirms data updates, not EA command delivery. Disable Bot writes enabled=false to the backend; it does not confirm that MT5 has stopped. Do not rely on this control as an emergency stop. For immediate stop, disable Algo Trading directly in MT5. Grid trading can incur substantial losses.</div>`;
 }
-const AX_BOT={settings:null,accountId:null,error:'',busy:false};
+const AX_BOT={settings:null,accountId:null,error:'',busy:false,ack:null,ackLoading:false};
 function axBotAccount(){return axDashboardAccounts.find(a=>a.account_number==='90352442')||axDashboardAccounts[0]||null;}
 async function axBotLoad(){
  if(!axSession?.access_token)return;
  try{
   await axRefreshDashboard();const a=axBotAccount();if(!a)throw Error('No linked MT5 account found');
   const r=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id));
-  AX_BOT.settings=r.settings;AX_BOT.accountId=a.id;AX_BOT.error='';
+  AX_BOT.settings=r.settings;AX_BOT.accountId=a.id;AX_BOT.error='';AX_BOT.ack=null;
+  axBotCheckAck();
  }catch(e){AX_BOT.error=e.message||'Unable to load bot settings';AX_BOT.settings=null;}
  if(S.page==='bot')render();
+}
+async function axBotCheckAck(){
+ const a=axBotAccount();if(!a||!axSession?.access_token||AX_BOT.ackLoading)return;
+ AX_BOT.ackLoading=true;
+ try{AX_BOT.ack=await ax61Api('/api/bot/ack/'+encodeURIComponent(a.id));}
+ catch(e){AX_BOT.ack=null;AX_BOT.error='EA acknowledgement unavailable: '+(e.message||'Network error');}
+ finally{AX_BOT.ackLoading=false;if(S.page==='bot')render();}
 }
 async function axBotSave(disable=false){
  if(AX_BOT.busy)return;
@@ -695,8 +715,30 @@ async function axBotSave(disable=false){
  const grid=Number(document.getElementById('step')?.value??AX_BOT.settings?.reentry_points);
  if(!Number.isFinite(lot)||lot<0.01||lot>1||Math.abs(lot*100-Math.round(lot*100))>1e-7||!Number.isFinite(target)||target<0.01||target>1000||!Number.isInteger(grid)||grid<1||grid>1000000){toast('Check lot, profit target and MT5 points');return;}
  AX_BOT.busy=true;
- try{const result=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id),'PUT',{enabled:false,start_lot:lot,pair_profit_usd:target,reentry_points:grid});AX_BOT.settings=result.settings;AX_BOT.accountId=a.id;AX_BOT.error='';toast(disable?'Disabled in backend; MT5 stop NOT confirmed':'Settings saved to backend; MT5 application NOT confirmed');}
+ try{const result=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id),'PUT',{enabled:false,start_lot:lot,pair_profit_usd:target,reentry_points:grid});AX_BOT.settings=result.settings;AX_BOT.accountId=a.id;AX_BOT.error='';AX_BOT.ack=null;toast(disable?'OFF saved; checking MT5 EA':'Settings saved; MT5 application NOT confirmed');if(disable){await new Promise(resolve=>setTimeout(resolve,3500));await axBotCheckAck();toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled===false?'MT5 EA acknowledged OFF':'MT5 OFF NOT confirmed — stop Algo Trading in MT5 if needed');}}
  catch(e){AX_BOT.error=e.message||'Save failed';toast(AX_BOT.error);}finally{AX_BOT.busy=false;if(S.page==='bot')render();}
+}
+async function axBotStart(){
+ if(AX_BOT.busy)return;
+ const a=axBotAccount();
+ if(!a || a.account_number!=='90352442' || String(a.account_type).toLowerCase()!=='demo')
+   return toast('Only Demo account #90352442 is permitted');
+ if(!confirm('Start XAUUSD trading on MT5 DEMO #90352442? This may open BUY and SELL orders.'))return;
+ const lot=Number(document.getElementById('lot')?.value);
+ const target=Number(document.getElementById('profit')?.value);
+ const points=Number(document.getElementById('step')?.value);
+ if(lot!==0.01||target!==5||points!==5000)return toast('Demo test requires lot 0.01, target $5, grid 5000');
+ AX_BOT.busy=true;
+ try{
+  const r=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id),'PUT',
+   {enabled:true,start_lot:lot,pair_profit_usd:target,reentry_points:points});
+  AX_BOT.settings=r.settings;
+  toast('ON requested; waiting for MT5 EA acknowledgement');
+  await new Promise(resolve=>setTimeout(resolve,4000));
+  await axBotCheckAck();
+  toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled ? 'MT5 EA confirmed ON (Demo)' : 'EA ON not confirmed; check MT5 and connector');
+ }catch(e){AX_BOT.error=e.message||'Start failed';toast(AX_BOT.error);}
+ finally{AX_BOT.busy=false;if(S.page==='bot')render();}
 }
 function axBotStop(){if(confirm('Disable bot in backend? This does not guarantee MT5 has stopped.'))axBotSave(true);}
 
