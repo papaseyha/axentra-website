@@ -757,7 +757,7 @@ async function axBotSave(disable=false){
  const grid=Number(document.getElementById('step')?.value??AX_BOT.settings?.reentry_points);
  if(!Number.isFinite(lot)||lot<0.01||lot>1||Math.abs(lot*100-Math.round(lot*100))>1e-7||!Number.isFinite(target)||target<0.01||target>1000||!Number.isInteger(grid)||grid<1||grid>1000000){toast('Check lot, profit target and MT5 points');return;}
  AX_BOT.busy=true;
- try{const result=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id),'PUT',{enabled:false,start_lot:lot,pair_profit_usd:target,reentry_points:grid});AX_BOT.settings=result.settings;AX_BOT.accountId=a.id;AX_BOT.error='';AX_BOT.ack=null;toast(disable?'OFF saved; checking MT5 EA':'Settings saved; MT5 application NOT confirmed');if(disable){await new Promise(resolve=>setTimeout(resolve,3500));await axBotCheckAck();toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled===false?'MT5 EA acknowledged OFF':'MT5 OFF NOT confirmed — stop Algo Trading in MT5 if needed');}}
+ try{const result=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id),'PUT',{enabled:disable?false:AX_BOT.settings?.enabled===true,start_lot:lot,pair_profit_usd:target,reentry_points:grid});AX_BOT.settings=result.settings;AX_BOT.accountId=a.id;AX_BOT.error='';AX_BOT.ack=null;toast(disable?'OFF saved; checking MT5 EA':'Settings saved; bot ON/OFF state preserved');if(disable){await new Promise(resolve=>setTimeout(resolve,3500));await axBotCheckAck();toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled===false?'MT5 EA acknowledged OFF':'MT5 OFF NOT confirmed — stop Algo Trading in MT5 if needed');}}
  catch(e){AX_BOT.error=e.message||'Save failed';toast(AX_BOT.error);}finally{AX_BOT.busy=false;if(S.page==='bot')render();}
 }
 async function axBotStart(){
@@ -777,7 +777,7 @@ async function axBotStart(){
   toast('ON requested; waiting for MT5 EA acknowledgement');
   await new Promise(resolve=>setTimeout(resolve,4000));
   await axBotCheckAck();
-  toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled ? 'MT5 EA confirmed ON (Demo)' : 'EA ON not confirmed; check MT5 and connector');
+  toast(AX_BOT.ack?.acknowledged && AX_BOT.ack?.applied_enabled ? 'MT5 EA confirmed ON' : 'EA ON not confirmed; check MT5 and connector');
  }catch(e){AX_BOT.error=e.message||'Start failed';toast(AX_BOT.error);}
  finally{AX_BOT.busy=false;if(S.page==='bot')render();}
 }
