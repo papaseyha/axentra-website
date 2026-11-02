@@ -678,7 +678,7 @@ function bot(){
  <div class="bot-summary-grid"><div><small>BOT SETTINGS</small><b>${settings?(enabled?'ON':'OFF'):'UNKNOWN'}</b></div><div><small>SYMBOL</small><b>XAUUSD</b></div><div><small>MT5 SYNC</small><b class="${online?'green':'amber'}">${online?'Online':'Offline'}</b></div></div>
  <div class="ax-v65-ack"><span><span class="ax-v65-dot ${ack?.acknowledged?'ready':''}"></span>MT5 EA ACK</span><strong class="${ackColor}">${esc(ackText)}</strong><button class="ax-v65-refresh" onclick="axBotCheckAck()" ${!live||AX_BOT.ackLoading?'disabled':''} title="Check EA acknowledgement">↻</button></div>
  <div class="bot-controls"><button class="btn success" ${!live||AX_BOT.busy||enabled?'disabled':''} onclick="axBotStart()">▶ Start Bot</button><button class="btn danger" ${!live||AX_BOT.busy?'disabled':''} onclick="axBotStop()">■ Disable Bot</button></div></section>
- <section class="card" aria-label="Trial and Subscription"><div class="flex"><div class="flex" style="justify-content:flex-start;gap:10px"><span class="review-icon">♛</span><h3 style="margin:0">Trial &amp; Subscription</h3></div><span class="pill">7 DAYS FREE</span></div><p class="muted small" style="line-height:1.6">Eligible new customers can receive a 7-day trial once server-side activation is enabled.</p><button class="btn full" disabled title="Server-side trial eligibility and MT5 license enforcement are not yet verified">Trial Activation · Coming Soon</button><button class="bot-plan-link" onclick="openPage('subscription61')"><span>View Plans &amp; Renew Subscription</span><span>→</span></button><p class="muted small" style="margin-bottom:0">$29 per active MT5 account per month. No payment is collected here.</p></section>
+ <section class="card" aria-label="Trial and Subscription"><div class="flex"><div class="flex" style="justify-content:flex-start;gap:10px"><span class="review-icon">♛</span><h3 style="margin:0">Trial &amp; Subscription</h3></div><span class="pill">7 DAYS FREE</span></div>${axTrialPanel(live,a)}<button class="bot-plan-link" onclick="openPage('subscription61')"><span>View Plans &amp; Renew Subscription</span><span>→</span></button><p class="muted small" style="margin-bottom:0">$29 per active MT5 account per month. No payment is collected here.</p></section>
  <section class="card"><h3>Bot Settings</h3><p class="muted small">Authenticated account settings · Saved to backend</p>
  ${AX_BOT.error?`<div class="notice">${esc(AX_BOT.error)}</div>`:''}
  <div class="bot-settings-grid">
@@ -689,6 +689,47 @@ function bot(){
  <div class="bot-warning">⚠ Start requires server authorization, an active license, a fresh connector and EA acknowledgement. MT5 Sync Online confirms data updates, not EA command delivery. Disable Bot writes enabled=false to the backend; it does not confirm that MT5 has stopped. Do not rely on this control as an emergency stop. For immediate stop, disable Algo Trading directly in MT5. Grid trading can incur substantial losses.</div>`;
 }
 const AX_BOT={settings:null,accountId:null,error:'',busy:false,ack:null,ackLoading:false};
+const AX_TRIAL={accountId:null,data:null,error:'',loading:false,busy:false};
+function axTrialPanel(live,account){
+ const d=AX_TRIAL.accountId===account?.id?AX_TRIAL.data:null;
+ const sub=d?.subscription;
+ const status=d?.licensed?(sub?.status==='trial'?'Trial active':'Subscription active'):(d?.trial_used?'Free trial already used':'Free trial available');
+ const expiry=sub?.expires_at?'<p class="muted small">Expires: '+esc(new Date(sub.expires_at).toLocaleString())+'</p>':'';
+ const loading=AX_TRIAL.loading?'Checking eligibility…':status;
+ const button=live&&d&&!d.licensed&&!d.trial_used
+  ?'<button class="btn full" '+(AX_TRIAL.busy?'disabled':'')+' onclick="axTrialActivate()">Activate Free Trial · 7 Days</button>'
+  :'';
+ const msg=AX_TRIAL.error?'<div class="notice">'+esc(AX_TRIAL.error)+'</div>':'';
+ return '<p class="muted small">'+esc(loading)+'</p>'+expiry+msg+button+
+  (!live?'<p class="muted small">Log in and connect an MT5 account first.</p>':'')+
+  (live&&!d?'<button class="btn secondary full" onclick="axTrialLoad()">Refresh Trial Status</button>':'');
+}
+async function axTrialLoad(){
+ const a=axBotAccount();
+ if(!a||!axSession?.access_token)return;
+ const accountId=a.id;
+ AX_TRIAL.accountId=accountId;AX_TRIAL.loading=true;AX_TRIAL.error='';
+ try{
+  const result=await ax61Api('/api/v64/subscription/'+encodeURIComponent(accountId));
+  if(AX_TRIAL.accountId===accountId)AX_TRIAL.data=result;
+ }catch(e){if(AX_TRIAL.accountId===accountId){AX_TRIAL.data=null;AX_TRIAL.error=e.message||'Trial status unavailable';}}
+ finally{AX_TRIAL.loading=false;if(S.page==='bot')render();}
+}
+async function axTrialActivate(){
+ const a=axBotAccount();
+ if(!a||AX_TRIAL.busy||!axSession?.access_token)return;
+ if(!AX_TRIAL.data||AX_TRIAL.accountId!==a.id||AX_TRIAL.data.licensed||AX_TRIAL.data.trial_used)return;
+ if(!confirm('Activate your one-time 7-day free trial for MT5 #'+a.account_number+'?'))return;
+ AX_TRIAL.busy=true;AX_TRIAL.error='';
+ try{
+  await ax61Api('/api/v64/trial/activate','POST',{account_id:a.id});
+  toast('7-day free trial activated');
+  await axTrialLoad();
+  await ax61Load();
+ }catch(e){AX_TRIAL.error=e.message||'Trial activation failed';toast(AX_TRIAL.error);await axTrialLoad();}
+ finally{AX_TRIAL.busy=false;if(S.page==='bot')render();}
+}
+
 function axBotAccount(){return axDashboardAccounts.find(a=>a.id===AX_BOT.accountId)||axDashboardAccounts[0]||null;}
 async function axBotLoad(){
  if(!axSession?.access_token)return;
@@ -697,6 +738,7 @@ async function axBotLoad(){
   const r=await ax61Api('/api/bot/settings/'+encodeURIComponent(a.id));
   AX_BOT.settings=r.settings;AX_BOT.accountId=a.id;AX_BOT.error='';AX_BOT.ack=null;
   axBotCheckAck();
+  axTrialLoad();
  }catch(e){AX_BOT.error=e.message||'Unable to load bot settings';AX_BOT.settings=null;}
  if(S.page==='bot')render();
 }
