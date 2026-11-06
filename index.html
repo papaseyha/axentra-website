@@ -1290,4 +1290,64 @@ const ax61OldOpenPage=openPage;
 openPage=function(p){ax61OldOpenPage(p);if(['analytics','subscription61','notifications','security','profile'].includes(p)&&axSession?.access_token&&(Date.now()-AX61.lastFetch>10000))ax61Load();};
 setInterval(()=>{if(axSession?.access_token&&!document.hidden&&['notifications','analytics','subscription61'].includes(S.page))ax61Load();},60000);
 
+
+// AXENTRA Wallet V67: replaces sample balance and demo actions with authenticated API.
+const AXW={data:null,busy:false};
+const axwMoney=n=>'$'+Number(n||0).toFixed(2);
+const axwTx=t=>`<div class="wallet-tx"><span class="wallet-tx-icon ${esc(t.kind)}">${ico(['deposit','withdraw','send','receive'].includes(t.kind)?t.kind:'send')}</span><div class="wallet-tx-copy"><b>${esc(t.kind.toUpperCase())}${t.counterparty_member_id?' · '+esc(t.counterparty_member_id):''}</b><small>${esc(new Date(t.created_at).toLocaleString())}</small></div><div class="wallet-tx-end"><b class="${['deposit','receive'].includes(t.kind)?'green':'red'}">${['deposit','receive'].includes(t.kind)?'+':'−'}${axwMoney(t.amount_cents/100)}</b><small class="wallet-status ${t.status==='pending'?'pending':''}">${esc(t.status)}</small></div></div>`;
+async function axwLoad(){
+ if(!axSession?.access_token){AXW.data=null;render();return;}
+ if(AXW.busy)return;AXW.busy=true;
+ try{AXW.data=await ax61Api('/api/wallet');if(S.page==='wallet')render();}
+ catch(e){AXW.data=null;toast('Wallet: '+e.message);if(S.page==='wallet')render();}
+ finally{AXW.busy=false;}
+}
+async function axwRequest(kind){
+ if(!axSession?.access_token)return toast('Log in first');
+ const amount=Number(document.getElementById(kind==='withdraw'?'wamt':'damt')?.value);
+ const bank_reference=document.getElementById(kind==='withdraw'?'wref':'dref')?.value.trim();
+ if(!Number.isFinite(amount)||amount<=0||!bank_reference||bank_reference.length<3)return toast('Enter amount and ABA reference');
+ if(!confirm(`Submit ${kind} request for ${axwMoney(amount)}? Admin must verify it.`))return;
+ try{await ax61Api('/api/wallet/request','POST',{kind,amount_usd:amount,bank_reference});toast('Request submitted · Pending admin approval');S.wallet='home';await axwLoad();}
+ catch(e){toast(e.message);}
+}
+async function axwTransfer(){
+ if(!axSession?.access_token)return toast('Log in first');
+ const member_id=document.getElementById('recipient')?.value.trim().toUpperCase();
+ const amount_usd=Number(document.getElementById('samt')?.value);
+ if(!/^AX-\d{4,20}$/.test(member_id)||!Number.isFinite(amount_usd)||amount_usd<=0)return toast('Invalid Member ID or amount');
+ if(!confirm(`Send ${axwMoney(amount_usd)} to ${member_id}? This transfer cannot be reversed automatically.`))return;
+ try{await ax61Api('/api/wallet/transfer','POST',{member_id,amount_usd});toast('Transfer completed');S.wallet='home';await axwLoad();}
+ catch(e){toast(e.message);}
+}
+const axwOriginalWallet=wallet;
+wallet=function(){
+ let html=axwOriginalWallet();const w=AXW.data;
+ const balance=w?axwMoney(w.balance_usd):'—';
+ html=html.replace('<h1>$150.00</h1>','<h1>'+balance+'</h1>');
+ html=html.replace('<span class="wallet-gain">↑ +2.5% (+$3.75) Today</span>','');
+ html=html.replace('ID: AX-1001 · Sample Customer',w?'ID: '+esc(w.member_id)+' · '+esc(axSession?.user?.user_metadata?.full_name||'Customer'):'Log in to access wallet');
+ html=html.replace('Wallet to Wallet · Demo Transfer','Wallet to Wallet · Secure Transfer');
+ html=html.replace('➤  Send Now · Demo','➤ Send Now').replace('Review Demo Transfer','Review Transfer');
+ html=html.replaceAll('demoTransfer()','axwTransfer()').replaceAll('value="AX-1002"','value=""');
+ html=html.replaceAll('Demo Withdrawal','Withdrawal').replaceAll('demoWithdraw()','axwRequest(\'withdraw\')');
+ html=html.replace('<div class="notice">Demo only. Real deposits require verified ABA/KHQR settlement.</div><button class="btn full" disabled>Generate KHQR — Coming Soon</button>',
+ '<div class="notice">Submit an ABA deposit reference after payment. Admin verifies the payment before crediting your wallet.</div><div class="field"><label>Amount (USD)</label><input id="damt" type="number" min="0.01" step="0.01"></div><div class="field"><label>ABA payment reference</label><input id="dref" placeholder="Payment transaction reference"></div><button class="btn full" onclick="axwRequest(\'deposit\')">Submit Deposit Request</button>');
+ html=html.replace('ABA Account Reference (demo)','ABA Account / Reference');
+ html=html.replace('Actual withdrawals require admin approval.','Withdrawals require admin approval; funds are reserved while pending.');
+ html=html.replace('<div class="qr">▦</div><p style="text-align:center"><b>AX-1001</b></p><p class="muted small" style="text-align:center">Illustration only, not a scannable QR.</p>',
+ '<p style="text-align:center"><b>'+esc(w?.member_id||'Log in first')+'</b></p><p class="muted small" style="text-align:center">Share your Member ID to receive an internal transfer.</p>');
+ html=html.replaceAll('onclick="copyWalletID(event)"','onclick="navigator.clipboard?.writeText(AXW.data?.member_id||\'\');toast(\'Member ID copied\')"');
+ // Replace all hard-coded sample history blocks, including the activity page.
+ const start=html.indexOf('<section class="card wallet-history">');
+ if(start>=0){const end=html.indexOf('</section>',start)+10;html=html.slice(0,start)+`<section class="card wallet-history"><div class="flex"><h3>Recent Transactions</h3><button class="viewall" onclick="S.wallet='activity';render()">View All →</button></div>${(w?.transactions||[]).slice(0,5).map(axwTx).join('')||'<p class="muted small">No transactions yet</p>'}</section>`+html.slice(end);}
+ if(S.wallet==='activity'){
+  const pos=html.indexOf('<section class="card"><h3>Transaction History</h3>');
+  if(pos>=0){const end=html.indexOf('</section>',pos)+10;html=html.slice(0,pos)+`<section class="card"><h3>Transaction History</h3>${(w?.transactions||[]).map(axwTx).join('')||'<p class="muted small">No transactions yet</p>'}</section>`+html.slice(end);}
+ }
+ return html;
+};
+const axwOldOpenPage=openPage;
+openPage=function(p){axwOldOpenPage(p);if(p==='wallet')axwLoad();};
+
 </script></body></html>
